@@ -1,0 +1,36 @@
+# ── Core ──
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-multipart==0.0.20
+python-dotenv==1.0.1
+mangum==0.19.0
+
+# ── LLM ──
+groq==0.15.0
+
+# ── Face Emotion ──
+opencv-python-headless==4.10.0.84
+deepface==0.0.93
+numpy==1.26.4
+
+# ── Voice Emotion ──
+librosa==0.10.2.post1
+soundfile==0.13.1
+
+# ── Text Emotion ──
+transformers==4.47.1
+torch==2.5.1
+sentencepiece==0.2.0
+
+# ── AWS (optional) ──
+boto3==1.35.86
+
+# ── Utilities ──
+Pillow==10.4.0
+requests==2.32.3
+
+# ── Streamlit UI ──
+streamlit==1.41.1
+tf-keras
