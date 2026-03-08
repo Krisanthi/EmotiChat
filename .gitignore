@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Models (downloaded at runtime)
+models/
+*.h5
+*.pt
+*.bin
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# AWS
+cdk.out/
+.aws-sam/
+samconfig.toml
+
+# Logs
+*.log
+logs/
