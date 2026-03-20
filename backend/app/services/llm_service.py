@@ -1,8 +1,3 @@
-"""
-LLM service — integrates with Groq API (Llama 3.3 70B).
-Dynamically adjusts system prompts based on detected emotional state.
-"""
-
 import logging
 import uuid
 from typing import Dict, List, Optional
@@ -15,29 +10,22 @@ from app.services.emotion_fusion import get_emotion_summary
 
 logger = logging.getLogger(__name__)
 
-# ── Conversation store (in-memory; use Redis/DynamoDB in production) ──
 _conversations: Dict[str, List[Dict]] = {}
 
 
-BASE_SYSTEM_PROMPT = """You are EmotiChat, a multimodal emotion-aware AI chatbot. \
-You are NOT a generic AI assistant. You are a specialized chatbot that can sense the user's \
-emotions in real-time through three channels:
+BASE_SYSTEM_PROMPT = """You are Purrbot, the EmotiChat companion. You are a warm, witty, cat-themed AI that senses the user's emotions in real-time through three channels:
 
-1. FACIAL EXPRESSION ANALYSIS — You analyze the user's webcam photo to detect emotions \
-   from their facial muscles, eye position, mouth shape, eyebrow position, etc. \
-   You use AWS Rekognition and DeepFace AI models for this.
+1. FACIAL EXPRESSION ANALYSIS — You watch the user's webcam feed and read their facial muscles, eye position, mouth shape, and eyebrow position using DeepFace AI running locally on their machine.
 
-2. VOICE TONE ANALYSIS — You analyze the user's voice recordings to detect emotional tone \
-   from pitch, energy, tempo, spectral features, and MFCCs using librosa audio processing.
+2. VOICE TONE ANALYSIS — You listen to the user's microphone and analyze pitch, energy, tempo, spectral features, and MFCCs using librosa audio processing and Whisper speech-to-text running locally.
 
-3. TEXT SENTIMENT ANALYSIS — You analyze the text the user types using a HuggingFace \
-   DistilRoBERTa model trained on emotion classification.
+3. TEXT SENTIMENT ANALYSIS — You analyze the text the user types using a HuggingFace DistilRoBERTa model trained on emotion classification.
 
-You combine all three readings using confidence-weighted fusion to determine the user's \
-overall emotional state. Then you adjust your response tone accordingly.
+You combine all three readings using confidence-weighted fusion to determine the user's overall emotional state. Then you adjust your response tone accordingly.
 
-When users ask what you can do, ALWAYS mention your emotion-sensing abilities. \
-You are proud of being an emotion-aware chatbot.
+You sprinkle in cat-related warmth naturally. You might say things like "I can see your smile from here" or "your voice sounds a bit heavy today, want to talk about it?" but you never force cat puns. You are genuine first, playful second.
+
+When users ask what you can do, mention your emotion-sensing abilities proudly.
 
 Guidelines:
 - Be genuine and warm, never patronizing
@@ -46,7 +34,8 @@ Guidelines:
 - If the user seems distressed, prioritize emotional support before information
 - Use appropriate humor when the user seems happy
 - Be direct and patient when the user seems frustrated or angry
-- If asked about your capabilities, explain your multimodal emotion detection in detail"""
+- If asked about your capabilities, explain your multimodal emotion detection
+- Occasionally use cat emojis like 😸 🐾 but do not overdo it"""
 
 EMOTION_PROMPTS = {
     "happy": """The user is currently feeling HAPPY and positive. Match their energy! \
@@ -57,7 +46,7 @@ Let them know you can see they're in a great mood.""",
     "sad": """The user is currently feeling SAD. Be gentle, compassionate, and validating. \
 Use soft, supportive language. Acknowledge their feelings without trying to immediately \
 fix things. Show empathy first, then gently offer support or perspective if appropriate. \
-Avoid being overly cheerful — it can feel dismissive.""",
+Avoid being overly cheerful.""",
 
     "angry": """The user is currently feeling ANGRY or frustrated. Stay calm and composed. \
 Don't be dismissive of their frustration. Acknowledge their feelings directly. \
@@ -86,9 +75,6 @@ and reliability through your answers.""",
 
 
 def build_system_prompt(fused_emotion: FusedEmotion) -> str:
-    """
-    Construct a dynamic system prompt based on the detected emotional state.
-    """
     dom = fused_emotion.fused.dominant
     emotion_context = EMOTION_PROMPTS.get(dom, EMOTION_PROMPTS["neutral"])
     emotion_summary = get_emotion_summary(fused_emotion)
@@ -102,28 +88,23 @@ def build_system_prompt(fused_emotion: FusedEmotion) -> str:
 
 --- EMOTIONAL VECTOR ---
 Dominant: {dom} (confidence: {fused_emotion.fused.confidence:.0%})
-Face: {fused_emotion.face.dominant + ' (' + f'{fused_emotion.face.confidence:.0%}' + ' conf)' if fused_emotion.face else 'N/A'} 
+Face: {fused_emotion.face.dominant + ' (' + f'{fused_emotion.face.confidence:.0%}' + ' conf)' if fused_emotion.face else 'N/A'}
 Voice: {fused_emotion.voice.dominant + ' (' + f'{fused_emotion.voice.confidence:.0%}' + ' conf)' if fused_emotion.voice else 'N/A'}
 Text: {fused_emotion.text.dominant + ' (' + f'{fused_emotion.text.confidence:.0%}' + ' conf)' if fused_emotion.text else 'N/A'}
 
-Use this emotional context to inform your response style. When the user asks what you \
-can do or who you are, explain your emotion-sensing capabilities in detail."""
+Use this emotional context to inform your response style."""
 
     return prompt
 
 
 def get_conversation(conversation_id: str) -> List[Dict]:
-    """Retrieve conversation history."""
     return _conversations.get(conversation_id, [])
 
 
 def save_to_conversation(conversation_id: str, role: str, content: str):
-    """Append a message to conversation history."""
     if conversation_id not in _conversations:
         _conversations[conversation_id] = []
     _conversations[conversation_id].append({"role": role, "content": content})
-
-    # Keep last 20 messages to avoid context overflow
     if len(_conversations[conversation_id]) > 20:
         _conversations[conversation_id] = _conversations[conversation_id][-20:]
 
@@ -134,9 +115,6 @@ async def generate_response(
     conversation_id: Optional[str] = None,
     history: Optional[List[ChatMessage]] = None,
 ) -> Dict:
-    """
-    Generate an LLM response via Groq API with emotion-aware system prompt.
-    """
     settings = get_settings()
 
     if not settings.GROQ_API_KEY:
@@ -144,25 +122,17 @@ async def generate_response(
             "GROQ_API_KEY is not set. Please set it in your environment or .env file."
         )
 
-    # Generate or use existing conversation ID
     conv_id = conversation_id or str(uuid.uuid4())
-
-    # Build emotion-aware system prompt
     system_prompt = build_system_prompt(fused_emotion)
-
-    # Assemble messages
     messages = [{"role": "system", "content": system_prompt}]
 
-    # Add history
     if history:
-        for msg in history[-10:]:  # Last 10 messages for context
+        for msg in history[-10:]:
             messages.append({"role": msg.role, "content": msg.content})
     else:
-        # Use stored conversation
         conv_history = get_conversation(conv_id)
         messages.extend(conv_history[-10:])
 
-    # Add current user message
     messages.append({"role": "user", "content": message})
 
     try:
@@ -180,7 +150,6 @@ async def generate_response(
         reply = completion.choices[0].message.content
         tokens_used = completion.usage.total_tokens if completion.usage else None
 
-        # Save to conversation history
         save_to_conversation(conv_id, "user", message)
         save_to_conversation(conv_id, "assistant", reply)
 
