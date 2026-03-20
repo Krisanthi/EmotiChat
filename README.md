@@ -1,6 +1,5 @@
-Here is the finalized, highly professional README ready for you to copy and paste directly into your GitHub repository.
 
-```markdown
+
 # EmotiChat: Multimodal Emotion-Aware AI Assistant 😸🐾
 
 <div align="center">
@@ -13,7 +12,7 @@ Here is the finalized, highly professional README ready for you to copy and past
   ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
 
 </div>
-```
+
 EmotiChat is a real-time, multimodal AI chatbot that detects user emotions across video, audio, and text streams to provide contextually empathetic responses. Designed with a warm, cat-themed persona ("Purrbot"), the application continuously tracks emotional states over time and visualizes them in an interactive dashboard.
 
 ##  Technical Highlights
