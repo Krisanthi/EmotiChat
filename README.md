@@ -8,7 +8,9 @@
   ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
   ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
   ![AWS DynamoDB](https://img.shields.io/badge/AWS%20DynamoDB-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+  ![OpenAI Whisper](https://img.shields.io/badge/OpenAI%20Whisper-412991?style=for-the-badge&logo=openai&logoColor=white)
   ![HuggingFace](https://img.shields.io/badge/Hugging%20Face-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+  ![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge)
   ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
 
 </div>
