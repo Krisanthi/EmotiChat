@@ -19,13 +19,19 @@ numpy==1.26.4
 librosa==0.10.2.post1
 soundfile==0.13.1
 
+# ── Speech to Text ──
+openai-whisper
+
 # ── Text Emotion ──
 transformers==4.47.1
 torch==2.5.1
 sentencepiece==0.2.0
 
-# ── AWS (optional) ──
+# ── AWS ──
 boto3==1.35.86
+
+# ── Charts ──
+plotly==5.24.1
 
 # ── Utilities ──
 Pillow==10.4.0
@@ -33,4 +39,5 @@ requests==2.32.3
 
 # ── Streamlit UI ──
 streamlit==1.41.1
+streamlit-autorefresh
 tf-keras
